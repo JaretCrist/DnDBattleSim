@@ -1,0 +1,51 @@
+<form [formGroup]="gameStats" (ngSubmit)="this.startGame()">
+  <div mat-dialog-content>
+    <h1 class="text-center">Set up your battle!</h1>
+    <div class="row">
+      <div class="col-md-6 col-12">
+        <div class="row">
+          <p>Board Width:</p>
+          <input
+            type="number"
+            formControlName="boardWidth"
+            [ngStyle]="{ width: '40%' }"
+            class="mx-3"
+          />
+        </div>
+        <div class="row my-3">
+          <p>Red Unit Count:</p>
+          <input
+            type="number"
+            formControlName="redCount"
+            [ngStyle]="{ width: '40%' }"
+            class="mx-3"
+          />
+        </div>
+      </div>
+
+      <div class="col-md-6 col-12">
+        <div class="row">
+          <p>Board Height:</p>
+          <input
+            type="number"
+            formControlName="boardHeight"
+            [ngStyle]="{ width: '40%' }"
+            class="mx-3"
+          />
+        </div>
+        <div class="row my-3">
+          <p>Blue Unit Count:</p>
+          <input
+            type="number"
+            formControlName="blueCount"
+            [ngStyle]="{ width: '40%' }"
+            class="mx-3"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+  <div mat-dialog-actions [align]="'center'">
+    <button type="submit" class="fs-3">Roll Initiative!</button>
+  </div>
+</form>
