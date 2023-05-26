@@ -10,6 +10,7 @@ import { TitlePageComponent } from './title-page/title-page.component';
 import { SetupPageComponent } from './setup-page/setup-page.component';
 import { GameComponent } from './game/game.component';
 import { GameOverComponent } from './game-over/game-over.component';
+import { BoardTileComponent } from './game/board-tile/board-tile.component';
 
 @NgModule({
   declarations: [
@@ -18,6 +19,7 @@ import { GameOverComponent } from './game-over/game-over.component';
     SetupPageComponent,
     GameComponent,
     GameOverComponent,
+    BoardTileComponent,
   ],
   imports: [
     BrowserModule,

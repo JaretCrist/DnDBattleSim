@@ -1,1 +1,14 @@
-<p>game works!</p>
+<!-- SPACER -->
+<div class="mt-3"></div>
+
+<div *ngFor="let row of this.board" class="d-flex flex-row mx-3">
+  <div *ngFor="let tile of row">
+    <app-board-tile [passedTile]="tile"></app-board-tile>
+  </div>
+</div>
+
+<div *ngIf="this.debug" class="my-3">
+  <button (click)="this.redWin()" class="mx-3">Red Wins</button>
+  <button (click)="this.blueWin()">Blue Wins</button>
+  <button (click)="this.testBoards()">Test board changes</button>
+</div>

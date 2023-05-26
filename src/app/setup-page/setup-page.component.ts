@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { setUpStats } from '../game/game.component';
+// import { setUpStats } from '../game/game.component';
 import { FormBuilder, Validators } from '@angular/forms';
 
 @Component({
@@ -8,7 +8,7 @@ import { FormBuilder, Validators } from '@angular/forms';
   templateUrl: './setup-page.component.html',
   styleUrls: ['./setup-page.component.scss'],
 })
-export class SetupPageComponent implements OnInit {
+export class SetupPageComponent {
   constructor(
     public dialogRef: MatDialogRef<SetupPageComponent>,
     private fb: FormBuilder
@@ -21,9 +21,7 @@ export class SetupPageComponent implements OnInit {
     blueCount: [3, [Validators.required, Validators.min(1)]],
   });
 
-  ngOnInit(): void {}
-
   startGame(): void {
-    this.dialogRef.close(this.gameStats.value);
+    if (this.gameStats.valid) this.dialogRef.close(this.gameStats.value);
   }
 }

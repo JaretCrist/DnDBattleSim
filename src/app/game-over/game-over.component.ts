@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { filter, mergeMap, tap } from 'rxjs';
+import { filter, tap } from 'rxjs';
 
 @Component({
   selector: 'app-game-over',

@@ -1,0 +1,20 @@
+<!-- <div class="tileBG">
+  <div>A</div>
+</div> -->
+<!-- <div 
+  [className]="'tileBG ' + this.displayTile.terrain + ' hovered_' + this.displayTile.hovered ">
+  <div *ngIf="this.displayTile.team" 
+    [className]="'charToken ' + this.displayTile.team"></div>
+</div> -->
+<div
+  [ngClass]="[
+    'tileBG',
+    this.displayTile.terrain,
+    'hovered_' + this.displayTile.hovered
+  ]"
+>
+  <div
+    *ngIf="this.displayTile.team"
+    [ngClass]="['charToken', this.displayTile.team, 'ms-2 mt-2']"
+  ></div>
+</div>

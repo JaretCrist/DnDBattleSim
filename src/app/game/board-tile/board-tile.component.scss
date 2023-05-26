@@ -1,0 +1,45 @@
+.tileBG {
+  width: 75px;
+  height: 75px;
+  border: 2px solid black;
+}
+
+.hovered_true {
+  border-color: blue;
+  border-width: 5px;
+}
+
+.normal {
+  background-color: #ddd;
+}
+
+.difficult {
+  background-color: #777;
+}
+
+.water {
+  background-color: aqua;
+}
+
+.impassable {
+  background-color: #000;
+}
+
+.flyOnly {
+  background-color: brown;
+}
+
+.charToken {
+  width: 50px;
+  height: 50px;
+  border-width: 0;
+  border-radius: 50%;
+}
+
+.red {
+  background-color: red;
+}
+
+.blue {
+  background-color: blue;
+}
