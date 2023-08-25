@@ -1,6 +1,6 @@
 # DnD Battle Sim
 
-The goal of this project is to create a Dungeons & Dragons battle simulator to be played from a web browser. The idea is to mimic the battle mechanics of DnD 5E with a UI reminiscent of GBA style Fire Emblem or Advance Wars tactical RPGs. 
+The goal of this project is to create a Dungeons & Dragons battle simulator to be played from a web browser. The idea is to mimic the battle mechanics of DnD 5E with a UI reminiscent of GBA style Fire Emblem or Advance Wars tactical RPGs.
 
 This project will be set up to use GitHub pages for sharing purposes. Use this link to play: [Pages note yet created]
 

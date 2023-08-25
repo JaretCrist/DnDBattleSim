@@ -1,0 +1,7 @@
+<div *ngIf="!this.team">
+  Something Went Wrong! You shouldn't be on this page right now.
+</div>
+<div *ngIf="this.team === 'red'">Red Team Wins!</div>
+<div *ngIf="this.team === 'blue'">Blue Team Wins!</div>
+
+<button (click)="this.playAgain()">Play Again?</button>

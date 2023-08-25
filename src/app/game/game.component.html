@@ -1,0 +1,68 @@
+<div class="noScroll">
+  <!-- SPACER -->
+  <div class="mt-3"></div>
+
+  <div *ngIf="this.boardHeight > 0">
+    <div class="row mb-3">
+      <div class="col h80 horzScroll">
+        <div *ngFor="let row of this.board" class="d-flex flex-row mx-3">
+          <div *ngFor="let tile of row">
+            <app-board-tile [passedTile]="tile"></app-board-tile>
+          </div>
+        </div>
+      </div>
+      <div class="col-2 display gameLog minW200">
+        <!-- Game Log -->
+        <div class="underline text-center">Game Log</div>
+        <div *ngFor="let text of this.gameLog">
+          {{ text }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 
+  <div *ngIf="this.debug" class="my-3">
+    <button (click)="this.redWin()" class="mx-3">Red Wins</button>
+    <button (click)="this.blueWin()">Blue Wins</button>
+    <button (click)="this.testBoards()">Test board changes</button>
+  </div> -->
+
+  <!-- Hovered Display -->
+  <div
+    class="container display details mt-3 width100"
+    *ngIf="this.hoveredTile && !this.hoveredTile.occupant"
+  >
+    <div class="row">
+      <div class="col">Terrain: {{ this.hoveredTile.terrain }}</div>
+    </div>
+  </div>
+
+  <div
+    class="container display details mt-3 width100"
+    *ngIf="this.hoveredTile && this.hoveredTile.occupant"
+  >
+    <div class="row">
+      <div class="col">Terrain: {{ this.hoveredTile.terrain }}</div>
+      <div class="col">
+        <div class="row">Team: {{ this.hoveredTile.team }}</div>
+        <div class="row">Name: {{ this.hoveredTile.occupant.name }}</div>
+      </div>
+      <div class="col">
+        <div class="row underline">Stats</div>
+        <div class="row">
+          HP: {{ this.hoveredTile.occupant.stats.hp }} /
+          {{ this.hoveredTile.occupant.stats.maxHP }}
+        </div>
+        <div class="row">AC: {{ this.hoveredTile.occupant.stats.ac }}</div>
+        <div class="row">Spd: {{ this.hoveredTile.occupant.stats.spd }}</div>
+      </div>
+      <div class="col">
+        <div class="row underline">Attacks</div>
+        <div class="row" *ngFor="let atk of this.hoveredTile.occupant.attacks">
+          {{ atk.name }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

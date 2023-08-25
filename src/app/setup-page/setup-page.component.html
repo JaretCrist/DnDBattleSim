@@ -1,0 +1,57 @@
+<form [formGroup]="gameStats" (ngSubmit)="this.startGame()">
+  <div mat-dialog-content>
+    <h1 class="text-center">Set up your battle!</h1>
+    <div class="row">
+      <div class="col-md-6 col-12">
+        <div class="row">
+          <p>Board Width:</p>
+          <mat-form-field appearance="fill">
+            <input type="number" matInput formControlName="boardWidth" />
+          </mat-form-field>
+        </div>
+        <div class="row my-3">
+          <p>Red Unit Count:</p>
+          <mat-form-field appearance="fill">
+            <input type="number" matInput formControlName="redCount" />
+          </mat-form-field>
+        </div>
+        <div class="row my-3">
+          <p>Red Unit Creature:</p>
+          <mat-form-field appearance="fill">
+            <mat-select formControlName="redCreature">
+              <mat-option value="Bandit">Bandit</mat-option>
+              <mat-option value="Skeleton">Skeleton</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-12">
+        <div class="row">
+          <p>Board Height:</p>
+          <mat-form-field appearance="fill">
+            <input type="number" matInput formControlName="boardHeight" />
+          </mat-form-field>
+        </div>
+        <div class="row my-3">
+          <p>Blue Unit Count:</p>
+          <mat-form-field appearance="fill">
+            <input type="number" matInput formControlName="blueCount" />
+          </mat-form-field>
+        </div>
+        <div class="row my-3">
+          <p>Blue Unit Creature:</p>
+          <mat-form-field appearance="fill">
+            <mat-select required formControlName="blueCreature">
+              <mat-option value="Bandit">Bandit</mat-option>
+              <mat-option value="Skeleton">Skeleton</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div mat-dialog-actions [align]="'center'">
+    <button type="submit" class="fs-3">Roll Initiative!</button>
+  </div>
+</form>
