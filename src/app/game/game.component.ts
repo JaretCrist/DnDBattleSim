@@ -162,43 +162,59 @@ export class GameComponent implements OnInit {
   // eventually get more complicated
   placeUnits(): void {
     let redPlaced = 0;
-    for (let index = 0; index < this.boardWidth; index++) {
-      this.board[0][index].occupant = this.redUnit;
-      this.board[0][index].team = 'red';
+    let yCoord = 0;
+    while (redPlaced < this.redCount) {
+      for (let index = yCoord; index < this.boardWidth; index++) {
+        this.board[yCoord][index].occupant = this.redUnit;
+        this.board[yCoord][index].team = 'red';
 
-      const redWithLocation: Unit = {
-        unit: this.redUnit,
-        x: index,
-        y: 0,
-        initiative: this.rollDie(20) + this.redUnit.stats.initiative,
-        team: 'red',
-      };
-      this.unitTracker.push(redWithLocation);
+        const redWithLocation: Unit = {
+          unit: this.redUnit,
+          x: index,
+          y: yCoord,
+          initiative: this.rollDie(20) + this.redUnit.stats.initiative,
+          team: 'red',
+        };
+        this.unitTracker.push(redWithLocation);
 
-      redPlaced++;
+        redPlaced++;
+        if (redPlaced === this.redCount) {
+          break;
+        }
+      }
       if (redPlaced === this.redCount) {
         break;
       }
+
+      yCoord++;
     }
 
     let bluePlaced = 0;
-    for (let index = this.boardWidth - 1; index >= 0; index--) {
-      this.board[this.boardHeight - 1][index].occupant = this.blueUnit;
-      this.board[this.boardHeight - 1][index].team = 'blue';
+    yCoord = this.boardHeight - 1;
+    while (bluePlaced < this.blueCount) {
+      for (let index = this.boardWidth - 1; index >= 0; index--) {
+        this.board[yCoord][index].occupant = this.blueUnit;
+        this.board[yCoord][index].team = 'blue';
 
-      const blueWithLocation: Unit = {
-        unit: this.blueUnit,
-        x: index,
-        y: this.boardHeight - 1,
-        initiative: this.rollDie(20) + this.blueUnit.stats.initiative,
-        team: 'blue',
-      };
-      this.unitTracker.push(blueWithLocation);
+        const blueWithLocation: Unit = {
+          unit: this.blueUnit,
+          x: index,
+          y: yCoord,
+          initiative: this.rollDie(20) + this.blueUnit.stats.initiative,
+          team: 'blue',
+        };
+        this.unitTracker.push(blueWithLocation);
 
-      bluePlaced++;
+        bluePlaced++;
+        if (bluePlaced === this.blueCount) {
+          break;
+        }
+      }
       if (bluePlaced === this.blueCount) {
         break;
       }
+
+      yCoord--;
     }
   }
 
@@ -238,7 +254,7 @@ export class GameComponent implements OnInit {
         `${unit.unit.name} (${unit.team}) - ${unit.initiative}`
       );
     }
-    this.gameLog.push('');
+    this.gameLog.push('-------------------------------');
   }
 }
 

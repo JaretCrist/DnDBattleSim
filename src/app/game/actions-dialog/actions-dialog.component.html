@@ -1,0 +1,23 @@
+<div mat-dialog-content>
+  <div *ngIf="!attackMode">
+    <p class="text-center underline">Actions</p>
+    <button
+      mat-button
+      (click)="attackMode = !attackMode"
+      disabled="data.canAtk"
+    >
+      Attack
+    </button>
+    <button mat-button (click)="move()" disabled="data.canMove">Move</button>
+    <button mat-button (click)="skip()">Skip Turn</button>
+    <button mat-button (click)="cancel()">Cancel</button>
+  </div>
+
+  <div *ngIf="attackMode">
+    <p class="text-center underline">Attacks</p>
+    <div *ngFor="let attack of data.attacks">
+      <button mat-button (click)="attack(attack)">{{ attack }}</button>
+    </div>
+    <button mat-button (click)="attackMode = !attackMode">Back</button>
+  </div>
+</div>

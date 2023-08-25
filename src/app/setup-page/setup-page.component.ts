@@ -24,7 +24,6 @@ export class SetupPageComponent {
   });
 
   startGame(): void {
-    console.log(this.gameStats.value);
     if (this.gameStats.valid) this.dialogRef.close(this.gameStats.value);
   }
 }
