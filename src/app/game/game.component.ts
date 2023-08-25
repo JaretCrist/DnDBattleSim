@@ -5,6 +5,7 @@ import { SetupPageComponent } from '../setup-page/setup-page.component';
 import { tap } from 'rxjs';
 import { BoardTile } from './board-tile/board-tile.component';
 import { HostListener } from '@angular/core';
+import { CharacterService } from '../character.service';
 
 export interface setUpStats {
   boardWidth: number;
@@ -24,7 +25,11 @@ export interface setUpStats {
 export class GameComponent implements OnInit {
   debug = false;
 
-  constructor(private dialog: MatDialog, private router: Router) {}
+  constructor(
+    private dialog: MatDialog,
+    private router: Router,
+    private charService: CharacterService
+  ) {}
 
   redCount = 0;
   blueCount = 0;
@@ -38,6 +43,12 @@ export class GameComponent implements OnInit {
   cursorY = 0;
 
   // number = Math.floor(Math.random() * 20); // roll a d20
+  rD20(): number {
+    return Math.floor(Math.random() * 20);
+  }
+
+  hoveredTile: BoardTile | null = null;
+  gameLog: string[] = [];
 
   // Accept User Input
   @HostListener('document:keyup', ['$event'])
@@ -88,6 +99,7 @@ export class GameComponent implements OnInit {
           this.boardWidth = res.boardWidth;
           this.boardHeight = res.boardHeight;
           this.generateBoard(this.boardWidth, this.boardHeight);
+          this.placeUnits();
         })
       )
       .subscribe();
@@ -110,6 +122,7 @@ export class GameComponent implements OnInit {
       this.board.push(col);
     }
     this.board[1][1].hovered = true;
+    this.hoveredTile = this.board[1][1];
     this.cursorX = 1;
     this.cursorY = 1;
   }
@@ -122,6 +135,32 @@ export class GameComponent implements OnInit {
     this.board[4][4].terrain = 'water';
     this.board[5][5].terrain = 'impassable';
     this.board[6][6].terrain = 'water';
+  }
+
+  placeUnits(): void {
+    // eventually get more complicated
+
+    const red = this.charService.Bandit;
+    let redPlaced = 0;
+    for (let index = 0; index < this.boardWidth; index++) {
+      this.board[0][index].occupant = red;
+      this.board[0][index].team = 'red';
+      redPlaced++;
+      if (redPlaced === this.redCount) {
+        break;
+      }
+    }
+
+    const blue = this.charService.Skeleton;
+    let bluePlaced = 0;
+    for (let index = this.boardWidth - 1; index >= 0; index--) {
+      this.board[this.boardHeight - 1][index].occupant = blue;
+      this.board[this.boardHeight - 1][index].team = 'blue';
+      bluePlaced++;
+      if (bluePlaced === this.blueCount) {
+        break;
+      }
+    }
   }
 
   // cursor movements
@@ -141,5 +180,6 @@ export class GameComponent implements OnInit {
       if (this.cursorX > this.boardWidth - 1) this.cursorX = 0;
     }
     this.board[this.cursorY][this.cursorX].hovered = true;
+    this.hoveredTile = this.board[this.cursorY][this.cursorX];
   }
 }

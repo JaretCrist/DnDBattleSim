@@ -1,12 +1,5 @@
 import { Component, Input, OnChanges } from '@angular/core';
-
-export interface Character {
-  // stats: Stats
-  stats: { hp: 11; ac: 12; spd: 30 };
-  // attacks: Attack[]
-  attacks: [{ hit: 3; roll: 6; rollCount: 1; type: 'slash' }];
-  activation(): string;
-}
+import { Character } from 'src/app/character.service';
 
 export class BoardTile {
   occupant: Character | null;
