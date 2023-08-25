@@ -15,6 +15,11 @@
 >
   <div
     *ngIf="this.displayTile.team"
-    [ngClass]="['charToken', this.displayTile.team, 'ms-2 mt-2']"
+    [ngClass]="[
+      'charToken',
+      this.displayTile.team,
+      'current-' + this.displayTile.currentInitiative,
+      'ms-2 mt-2'
+    ]"
   ></div>
 </div>

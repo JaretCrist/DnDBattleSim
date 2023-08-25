@@ -5,42 +5,48 @@
       <div class="col-md-6 col-12">
         <div class="row">
           <p>Board Width:</p>
-          <input
-            type="number"
-            formControlName="boardWidth"
-            [ngStyle]="{ width: '40%' }"
-            class="mx-3"
-          />
+          <mat-form-field appearance="fill">
+            <input type="number" matInput formControlName="boardWidth" />
+          </mat-form-field>
         </div>
         <div class="row my-3">
           <p>Red Unit Count:</p>
-          <input
-            type="number"
-            formControlName="redCount"
-            [ngStyle]="{ width: '40%' }"
-            class="mx-3"
-          />
+          <mat-form-field appearance="fill">
+            <input type="number" matInput formControlName="redCount" />
+          </mat-form-field>
+        </div>
+        <div class="row my-3">
+          <p>Red Unit Creature:</p>
+          <mat-form-field appearance="fill">
+            <mat-select formControlName="redCreature">
+              <mat-option value="Bandit">Bandit</mat-option>
+              <mat-option value="Skeleton">Skeleton</mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
       </div>
 
       <div class="col-md-6 col-12">
         <div class="row">
           <p>Board Height:</p>
-          <input
-            type="number"
-            formControlName="boardHeight"
-            [ngStyle]="{ width: '40%' }"
-            class="mx-3"
-          />
+          <mat-form-field appearance="fill">
+            <input type="number" matInput formControlName="boardHeight" />
+          </mat-form-field>
         </div>
         <div class="row my-3">
           <p>Blue Unit Count:</p>
-          <input
-            type="number"
-            formControlName="blueCount"
-            [ngStyle]="{ width: '40%' }"
-            class="mx-3"
-          />
+          <mat-form-field appearance="fill">
+            <input type="number" matInput formControlName="blueCount" />
+          </mat-form-field>
+        </div>
+        <div class="row my-3">
+          <p>Blue Unit Creature:</p>
+          <mat-form-field appearance="fill">
+            <mat-select required formControlName="blueCreature">
+              <mat-option value="Bandit">Bandit</mat-option>
+              <mat-option value="Skeleton">Skeleton</mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
       </div>
     </div>

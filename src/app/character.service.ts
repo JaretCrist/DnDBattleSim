@@ -13,6 +13,14 @@ export interface Character {
   // activation(): string;
 }
 
+export interface Unit {
+  unit: Character;
+  x: number;
+  y: number;
+  initiative: number;
+  team: string;
+}
+
 export interface Attack {
   name: string;
   hit: number;

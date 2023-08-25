@@ -19,9 +19,12 @@ export class SetupPageComponent {
     boardWidth: [8, [Validators.required, Validators.min(2)]],
     redCount: [3, [Validators.required, Validators.min(1)]],
     blueCount: [3, [Validators.required, Validators.min(1)]],
+    redCreature: ['Bandit', [Validators.required]],
+    blueCreature: ['Skeleton', [Validators.required]],
   });
 
   startGame(): void {
+    console.log(this.gameStats.value);
     if (this.gameStats.valid) this.dialogRef.close(this.gameStats.value);
   }
 }

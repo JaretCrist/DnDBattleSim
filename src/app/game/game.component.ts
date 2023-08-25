@@ -5,16 +5,18 @@ import { SetupPageComponent } from '../setup-page/setup-page.component';
 import { tap } from 'rxjs';
 import { BoardTile } from './board-tile/board-tile.component';
 import { HostListener } from '@angular/core';
-import { CharacterService } from '../character.service';
+import { Character, CharacterService, Unit } from '../character.service';
 
 export interface setUpStats {
   boardWidth: number;
   boardHeight: number;
   // boardType: enum
 
-  // eventually replace with an array of units once not all just bandits
   redCount: number;
   blueCount: number;
+  // eventually replace with an array of units once not all just bandits
+  redCreature: string;
+  blueCreature: string;
 }
 
 @Component({
@@ -42,13 +44,23 @@ export class GameComponent implements OnInit {
   cursorX = 0;
   cursorY = 0;
 
-  // number = Math.floor(Math.random() * 20); // roll a d20
-  rD20(): number {
-    return Math.floor(Math.random() * 20);
+  // rolling a nat 20 has decreased odds due to the calculation being floored
+  // to fix: range 1-21 and reroll 21s
+  // above applies to all dice sizes
+  rollDie(size: number): number {
+    let result = size + 1;
+    while (result === size + 1) {
+      result = Math.floor(Math.random() * size) + 1;
+    }
+    return result;
   }
 
   hoveredTile: BoardTile | null = null;
   gameLog: string[] = [];
+
+  unitTracker: Unit[] = [];
+  redUnit: Character = this.charService.Bandit;
+  blueUnit: Character = this.charService.Skeleton;
 
   // Accept User Input
   @HostListener('document:keyup', ['$event'])
@@ -94,12 +106,26 @@ export class GameComponent implements OnInit {
       .afterClosed()
       .pipe(
         tap((res: setUpStats) => {
-          this.redCount = res.redCount;
-          this.blueCount = res.blueCount;
           this.boardWidth = res.boardWidth;
           this.boardHeight = res.boardHeight;
+
+          this.redCount = res.redCount;
+          this.blueCount = res.blueCount;
+
+          // replace with function when more options are added
+          this.redUnit =
+            res.redCreature === 'Bandit'
+              ? this.charService.Bandit
+              : this.charService.Skeleton;
+          this.blueUnit =
+            res.blueCreature === 'Bandit'
+              ? this.charService.Bandit
+              : this.charService.Skeleton;
+
           this.generateBoard(this.boardWidth, this.boardHeight);
           this.placeUnits();
+
+          this.handleStartInitiative();
         })
       )
       .subscribe();
@@ -121,41 +147,54 @@ export class GameComponent implements OnInit {
       }
       this.board.push(col);
     }
-    this.board[1][1].hovered = true;
-    this.hoveredTile = this.board[1][1];
-    this.cursorX = 1;
-    this.cursorY = 1;
   }
 
-  testBoards(): void {
-    this.board[0][0].team = 'blue';
-    this.board[1][1].team = 'red';
-    this.board[2][2].hovered = true;
-    this.board[3][3].terrain = 'difficult';
-    this.board[4][4].terrain = 'water';
-    this.board[5][5].terrain = 'impassable';
-    this.board[6][6].terrain = 'water';
-  }
+  // testBoards(): void {
+  //   this.board[0][0].team = 'blue';
+  //   this.board[1][1].team = 'red';
+  //   this.board[2][2].hovered = true;
+  //   this.board[3][3].terrain = 'difficult';
+  //   this.board[4][4].terrain = 'water';
+  //   this.board[5][5].terrain = 'impassable';
+  //   this.board[6][6].terrain = 'water';
+  // }
 
+  // eventually get more complicated
   placeUnits(): void {
-    // eventually get more complicated
-
-    const red = this.charService.Bandit;
     let redPlaced = 0;
     for (let index = 0; index < this.boardWidth; index++) {
-      this.board[0][index].occupant = red;
+      this.board[0][index].occupant = this.redUnit;
       this.board[0][index].team = 'red';
+
+      const redWithLocation: Unit = {
+        unit: this.redUnit,
+        x: index,
+        y: 0,
+        initiative: this.rollDie(20) + this.redUnit.stats.initiative,
+        team: 'red',
+      };
+      this.unitTracker.push(redWithLocation);
+
       redPlaced++;
       if (redPlaced === this.redCount) {
         break;
       }
     }
 
-    const blue = this.charService.Skeleton;
     let bluePlaced = 0;
     for (let index = this.boardWidth - 1; index >= 0; index--) {
-      this.board[this.boardHeight - 1][index].occupant = blue;
+      this.board[this.boardHeight - 1][index].occupant = this.blueUnit;
       this.board[this.boardHeight - 1][index].team = 'blue';
+
+      const blueWithLocation: Unit = {
+        unit: this.blueUnit,
+        x: index,
+        y: this.boardHeight - 1,
+        initiative: this.rollDie(20) + this.blueUnit.stats.initiative,
+        team: 'blue',
+      };
+      this.unitTracker.push(blueWithLocation);
+
       bluePlaced++;
       if (bluePlaced === this.blueCount) {
         break;
@@ -182,4 +221,30 @@ export class GameComponent implements OnInit {
     this.board[this.cursorY][this.cursorX].hovered = true;
     this.hoveredTile = this.board[this.cursorY][this.cursorX];
   }
+
+  handleStartInitiative(): void {
+    this.unitTracker = this.unitTracker.sort(compareInitiative);
+    if (this.unitTracker.length > 0) {
+      this.cursorX = this.unitTracker[0].x;
+      this.cursorY = this.unitTracker[0].y;
+      this.board[this.cursorY][this.cursorX].hovered = true;
+      this.board[this.cursorY][this.cursorX].currentInitiative = true;
+      this.hoveredTile = this.board[this.cursorY][this.cursorX];
+    }
+
+    this.gameLog.push('Initiative:');
+    for (const unit of this.unitTracker) {
+      this.gameLog.push(
+        `${unit.unit.name} (${unit.team}) - ${unit.initiative}`
+      );
+    }
+    this.gameLog.push('');
+  }
+}
+
+function compareInitiative(a: Unit, b: Unit): number {
+  if (a.initiative > b.initiative) return -1;
+  if (b.initiative > a.initiative) return 1;
+
+  return 0;
 }
