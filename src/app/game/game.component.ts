@@ -38,11 +38,30 @@ export class GameComponent implements OnInit, OnDestroy {
   boardWidth = 0;
   boardHeight = 0;
 
+  // eventually will need a copy of "original board" once terrain is implemented
   board: BoardTile[][] = [];
 
   // (0, 0) is top left, (boardHeight, boardWidth) is bottom right
   cursorX = 0;
   cursorY = 0;
+
+  hoveredTile: BoardTile | null = null;
+  gameLog: string[] = [];
+
+  unitTracker: Unit[] = [];
+  redUnit: Character = this.charService.Bandit;
+  blueUnit: Character = this.charService.Skeleton;
+
+  currentInitiative = -1;
+  actionsLeft = 0;
+  movementLeft = 0;
+  // needed for unmarking movable tiles if cursor has moved
+  currentInitX = 0;
+  currentInitY = 0;
+
+  // cursor modes
+  movementMode = false;
+  actionMenuMode = false;
 
   // rolling a nat 20 has decreased odds due to the calculation being floored
   // to fix: range 1-21 and reroll 21s
@@ -54,24 +73,6 @@ export class GameComponent implements OnInit, OnDestroy {
     }
     return result;
   }
-
-  hoveredTile: BoardTile | null = null;
-  gameLog: string[] = [];
-
-  unitTracker: Unit[] = [];
-  redUnit: Character = this.charService.Bandit;
-  blueUnit: Character = this.charService.Skeleton;
-
-  currentInitiative = -1;
-  canAct = 0;
-  movementLeft = 0;
-  // needed for unmarking movable tiles if cursor has moved
-  currentInitX = 0;
-  currentInitY = 0;
-
-  // cursor modes
-  movementMode = false;
-  actionMenuMode = false;
 
   // Accept User Input
   @HostListener('document:keyup', ['$event'])
@@ -98,11 +99,14 @@ export class GameComponent implements OnInit, OnDestroy {
         break;
 
       case 'Enter':
-        if (!this.actionMenuMode) this.openActions();
-        // else if (this.movementMode) this.moveUnit();
+        if (!this.actionMenuMode && !this.movementMode) this.openActions();
+        else if (!this.actionMenuMode && this.movementMode) this.moveUnit();
         break;
 
       // backspace
+      case 'Backspace':
+        if (this.movementMode) this.movementMode = false;
+        break;
 
       default:
         break;
@@ -170,6 +174,9 @@ export class GameComponent implements OnInit, OnDestroy {
       }
       this.board.push(col);
     }
+
+    // copy board onto terrainOnlyBoard so
+    //   tiles don't reset after being moved from
   }
 
   // eventually get more complicated
@@ -235,6 +242,8 @@ export class GameComponent implements OnInit, OnDestroy {
   moveCursor(direction: 'up' | 'down' | 'left' | 'right'): void {
     if (!this.actionMenuMode) {
       this.board[this.cursorY][this.cursorX].hovered = false;
+      this.board[this.cursorY][this.cursorX].movementMode = false;
+
       if (direction === 'up') {
         this.cursorY--;
         if (this.cursorY < 0) this.cursorY = this.boardHeight - 1;
@@ -248,7 +257,9 @@ export class GameComponent implements OnInit, OnDestroy {
         this.cursorX++;
         if (this.cursorX > this.boardWidth - 1) this.cursorX = 0;
       }
+
       this.board[this.cursorY][this.cursorX].hovered = true;
+      this.board[this.cursorY][this.cursorX].movementMode = this.movementMode;
       this.hoveredTile = this.board[this.cursorY][this.cursorX];
     }
   }
@@ -293,7 +304,8 @@ export class GameComponent implements OnInit, OnDestroy {
     }
 
     this.toggleActiveCharacter();
-    this.canAct = this.unitTracker[this.currentInitiative].unit.attackCount;
+    this.actionsLeft =
+      this.unitTracker[this.currentInitiative].unit.attackCount;
     this.movementLeft =
       this.unitTracker[this.currentInitiative].unit.stats.spd / 5;
 
@@ -324,7 +336,7 @@ export class GameComponent implements OnInit, OnDestroy {
       disableClose: true,
       data: {
         atks: this.unitTracker[this.currentInitiative].unit.attacks,
-        canAtk: this.canAct > 0,
+        canAtk: this.actionsLeft > 0,
         canMove: this.movementLeft > 0,
       },
     });
@@ -340,6 +352,8 @@ export class GameComponent implements OnInit, OnDestroy {
                 this.nextTurn();
               } else if (res === 'move') {
                 this.movementMode = true;
+                this.board[this.cursorY][this.cursorX].movementMode =
+                  this.movementMode;
               }
             } else {
               console.log(res.atk);
@@ -375,6 +389,38 @@ export class GameComponent implements OnInit, OnDestroy {
         }
       }
     }
+  }
+
+  moveUnit(): void {
+    if (this.board[this.cursorY][this.cursorX].canMoveTo) {
+      this.markMovement(false);
+
+      // recalculate movement left
+      this.movementLeft -= Math.max(
+        Math.abs(this.cursorY - this.currentInitY),
+        Math.abs(this.cursorX - this.currentInitX)
+      );
+
+      // swap current unit to location of cursor
+      this.board[this.cursorY][this.cursorX] =
+        this.board[this.currentInitY][this.currentInitX];
+      // replace following line with this.terrainOnly[Y][X]
+      this.board[this.currentInitY][this.currentInitX] = new BoardTile();
+
+      this.currentInitX = this.cursorX;
+      this.currentInitY = this.cursorY;
+      this.board[this.cursorY][this.cursorX].hovered = true;
+      this.hoveredTile = this.board[this.cursorY][this.cursorX];
+
+      if (this.movementLeft <= 0 && this.actionsLeft <= 0) {
+        this.nextTurn();
+      } else {
+        this.markMovement();
+      }
+    }
+
+    this.movementMode = false;
+    this.board[this.cursorY][this.cursorX].movementMode = this.movementMode;
   }
 }
 

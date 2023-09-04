@@ -8,6 +8,7 @@ export class BoardTile {
   hovered: boolean;
   currentInitiative: boolean;
   canMoveTo: boolean;
+  movementMode: boolean;
   // activation(): string | null;
 
   constructor() {
@@ -17,6 +18,7 @@ export class BoardTile {
     this.hovered = false;
     this.currentInitiative = false;
     this.canMoveTo = false;
+    this.movementMode = false;
     // this.activation = (() => { return null;})
   }
 }
