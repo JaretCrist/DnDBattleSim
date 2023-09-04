@@ -4,19 +4,33 @@
     <button
       mat-button
       (click)="attackMode = !attackMode"
-      disabled="data.canAtk"
+      [disabled]="!data.canAtk"
+      class="row center"
     >
       Attack
     </button>
-    <button mat-button (click)="move()" disabled="data.canMove">Move</button>
-    <button mat-button (click)="skip()">Skip Turn</button>
-    <button mat-button (click)="cancel()">Cancel</button>
+    <button
+      mat-button
+      (click)="move()"
+      [disabled]="!data.canMove"
+      class="row center"
+    >
+      Move
+    </button>
+    <button mat-button (click)="skip()" class="row center">Skip Turn</button>
+    <button mat-button (click)="cancel()" class="row center">Cancel</button>
   </div>
 
   <div *ngIf="attackMode">
     <p class="text-center underline">Attacks</p>
-    <div *ngFor="let attack of data.attacks">
-      <button mat-button (click)="attack(attack)">{{ attack }}</button>
+    <div *ngFor="let attack of data.atks">
+      <button
+        mat-button
+        class="row center"
+        (click)="attackSelected(attack.name)"
+      >
+        {{ attack.name }}
+      </button>
     </div>
     <button mat-button (click)="attackMode = !attackMode">Back</button>
   </div>

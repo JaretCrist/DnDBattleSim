@@ -10,6 +10,7 @@ export interface Character {
     initiative: number;
   };
   attacks: Attack[];
+  attackCount: number;
   // activation(): string;
 }
 
@@ -53,6 +54,7 @@ export class CharacterService {
         type: 'slash',
       },
     ],
+    attackCount: 1,
   };
 
   Skeleton: Character = {
@@ -74,5 +76,6 @@ export class CharacterService {
         type: 'pierce',
       },
     ],
+    attackCount: 1,
   };
 }

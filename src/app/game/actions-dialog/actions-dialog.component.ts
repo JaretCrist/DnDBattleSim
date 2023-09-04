@@ -1,8 +1,9 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { Attack } from 'src/app/character.service';
 
 export interface DialogData {
-  atks: string[];
+  atks: Attack[];
   canAtk: boolean;
   canMove: boolean;
 }
@@ -20,7 +21,7 @@ export class ActionsDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: DialogData
   ) {}
 
-  attack(name: string): void {
+  attackSelected(name: string): void {
     this.dialogRef.close({ atk: name });
   }
 
@@ -35,4 +36,8 @@ export class ActionsDialogComponent {
   cancel(): void {
     this.dialogRef.close('cancel');
   }
+
+  // keyboard input
+
+  // button focuses
 }

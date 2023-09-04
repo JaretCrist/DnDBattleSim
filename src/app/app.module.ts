@@ -11,6 +11,7 @@ import { SetupPageComponent } from './setup-page/setup-page.component';
 import { GameComponent } from './game/game.component';
 import { GameOverComponent } from './game-over/game-over.component';
 import { BoardTileComponent } from './game/board-tile/board-tile.component';
+import { ActionsDialogComponent } from './game/actions-dialog/actions-dialog.component';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { BoardTileComponent } from './game/board-tile/board-tile.component';
     GameComponent,
     GameOverComponent,
     BoardTileComponent,
+    ActionsDialogComponent,
   ],
   imports: [
     BrowserModule,

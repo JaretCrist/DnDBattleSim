@@ -1,11 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { SetupPageComponent } from '../setup-page/setup-page.component';
-import { tap } from 'rxjs';
+import { Subscription, finalize, tap } from 'rxjs';
 import { BoardTile } from './board-tile/board-tile.component';
 import { HostListener } from '@angular/core';
 import { Character, CharacterService, Unit } from '../character.service';
+import { ActionsDialogComponent } from './actions-dialog/actions-dialog.component';
 
 export interface setUpStats {
   boardWidth: number;
@@ -24,14 +25,13 @@ export interface setUpStats {
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss'],
 })
-export class GameComponent implements OnInit {
-  debug = false;
-
+export class GameComponent implements OnInit, OnDestroy {
   constructor(
     private dialog: MatDialog,
     private router: Router,
     private charService: CharacterService
   ) {}
+  subscriptor = new Subscription();
 
   redCount = 0;
   blueCount = 0;
@@ -62,6 +62,14 @@ export class GameComponent implements OnInit {
   redUnit: Character = this.charService.Bandit;
   blueUnit: Character = this.charService.Skeleton;
 
+  currentInitiative = -1;
+  canAct = 0;
+  movementLeft = 0;
+
+  // cursor modes
+  movementMode = false;
+  actionMenuMode = false;
+
   // Accept User Input
   @HostListener('document:keyup', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
@@ -86,13 +94,20 @@ export class GameComponent implements OnInit {
         this.moveCursor('right');
         break;
 
-      // e v o enter
+      case 'Enter':
+        if (!this.actionMenuMode) this.openActions();
+        // else if (this.movementMode) this.moveUnit();
+        break;
 
-      // r c p backspace
+      // backspace
 
       default:
         break;
     }
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptor.unsubscribe();
   }
 
   ngOnInit(): void {
@@ -102,33 +117,38 @@ export class GameComponent implements OnInit {
       disableClose: true,
     });
 
-    setupDialogRef
-      .afterClosed()
-      .pipe(
-        tap((res: setUpStats) => {
-          this.boardWidth = res.boardWidth;
-          this.boardHeight = res.boardHeight;
+    this.subscriptor.add(
+      setupDialogRef
+        .afterClosed()
+        .pipe(
+          tap((res: setUpStats) => {
+            this.boardWidth = res.boardWidth;
+            this.boardHeight = res.boardHeight;
 
-          this.redCount = res.redCount;
-          this.blueCount = res.blueCount;
+            this.redCount = res.redCount;
+            this.blueCount = res.blueCount;
 
-          // replace with function when more options are added
-          this.redUnit =
-            res.redCreature === 'Bandit'
-              ? this.charService.Bandit
-              : this.charService.Skeleton;
-          this.blueUnit =
-            res.blueCreature === 'Bandit'
-              ? this.charService.Bandit
-              : this.charService.Skeleton;
+            // replace with function when more options are added
+            this.redUnit =
+              res.redCreature === 'Bandit'
+                ? this.charService.Bandit
+                : this.charService.Skeleton;
+            this.blueUnit =
+              res.blueCreature === 'Bandit'
+                ? this.charService.Bandit
+                : this.charService.Skeleton;
 
-          this.generateBoard(this.boardWidth, this.boardHeight);
-          this.placeUnits();
+            this.generateBoard(this.boardWidth, this.boardHeight);
+            this.placeUnits();
 
-          this.handleStartInitiative();
-        })
-      )
-      .subscribe();
+            this.handleStartInitiative();
+            if (this.unitTracker.length > 0) {
+              this.nextTurn();
+            }
+          })
+        )
+        .subscribe()
+    );
   }
 
   redWin(): void {
@@ -148,16 +168,6 @@ export class GameComponent implements OnInit {
       this.board.push(col);
     }
   }
-
-  // testBoards(): void {
-  //   this.board[0][0].team = 'blue';
-  //   this.board[1][1].team = 'red';
-  //   this.board[2][2].hovered = true;
-  //   this.board[3][3].terrain = 'difficult';
-  //   this.board[4][4].terrain = 'water';
-  //   this.board[5][5].terrain = 'impassable';
-  //   this.board[6][6].terrain = 'water';
-  // }
 
   // eventually get more complicated
   placeUnits(): void {
@@ -220,41 +230,144 @@ export class GameComponent implements OnInit {
 
   // cursor movements
   moveCursor(direction: 'up' | 'down' | 'left' | 'right'): void {
-    this.board[this.cursorY][this.cursorX].hovered = false;
-    if (direction === 'up') {
-      this.cursorY--;
-      if (this.cursorY < 0) this.cursorY = this.boardHeight - 1;
-    } else if (direction === 'down') {
-      this.cursorY++;
-      if (this.cursorY > this.boardHeight - 1) this.cursorY = 0;
-    } else if (direction === 'left') {
-      this.cursorX--;
-      if (this.cursorX < 0) this.cursorX = this.boardWidth - 1;
-    } else {
-      this.cursorX++;
-      if (this.cursorX > this.boardWidth - 1) this.cursorX = 0;
+    if (!this.actionMenuMode) {
+      this.board[this.cursorY][this.cursorX].hovered = false;
+      if (direction === 'up') {
+        this.cursorY--;
+        if (this.cursorY < 0) this.cursorY = this.boardHeight - 1;
+      } else if (direction === 'down') {
+        this.cursorY++;
+        if (this.cursorY > this.boardHeight - 1) this.cursorY = 0;
+      } else if (direction === 'left') {
+        this.cursorX--;
+        if (this.cursorX < 0) this.cursorX = this.boardWidth - 1;
+      } else {
+        this.cursorX++;
+        if (this.cursorX > this.boardWidth - 1) this.cursorX = 0;
+      }
+      this.board[this.cursorY][this.cursorX].hovered = true;
+      this.hoveredTile = this.board[this.cursorY][this.cursorX];
     }
-    this.board[this.cursorY][this.cursorX].hovered = true;
-    this.hoveredTile = this.board[this.cursorY][this.cursorX];
   }
 
   handleStartInitiative(): void {
     this.unitTracker = this.unitTracker.sort(compareInitiative);
-    if (this.unitTracker.length > 0) {
-      this.cursorX = this.unitTracker[0].x;
-      this.cursorY = this.unitTracker[0].y;
-      this.board[this.cursorY][this.cursorX].hovered = true;
-      this.board[this.cursorY][this.cursorX].currentInitiative = true;
-      this.hoveredTile = this.board[this.cursorY][this.cursorX];
-    }
-
     this.gameLog.push('Initiative:');
     for (const unit of this.unitTracker) {
       this.gameLog.push(
         `${unit.unit.name} (${unit.team}) - ${unit.initiative}`
       );
     }
-    this.gameLog.push('-------------------------------');
+    this.gameLog.push('--------------------------');
+  }
+
+  // Check game over conditions, move to next initiative, reset variables
+  nextTurn(): void {
+    if (this.redCount <= 0) {
+      this.blueWin();
+    }
+    if (this.blueCount <= 0) {
+      this.redWin();
+    }
+
+    // at start of game there is no selected unit
+    if (this.currentInitiative !== -1) {
+      this.toggleActiveCharacter();
+    }
+
+    this.currentInitiative++;
+    let nextInitiativeFound = false;
+    while (!nextInitiativeFound) {
+      if (this.currentInitiative > this.unitTracker.length - 1) {
+        this.currentInitiative = 0;
+      }
+      if (this.unitTracker[this.currentInitiative].unit.stats.hp > 0) {
+        nextInitiativeFound = true;
+        break;
+      }
+
+      this.currentInitiative++;
+    }
+
+    this.toggleActiveCharacter();
+    this.canAct = this.unitTracker[this.currentInitiative].unit.attackCount;
+    this.movementLeft =
+      this.unitTracker[this.currentInitiative].unit.stats.spd / 5;
+
+    this.markMovement();
+  }
+
+  toggleActiveCharacter(): void {
+    this.cursorX = this.unitTracker[this.currentInitiative].x;
+    this.cursorY = this.unitTracker[this.currentInitiative].y;
+
+    this.board[this.cursorY][this.cursorX].currentInitiative =
+      !this.board[this.cursorY][this.cursorX].currentInitiative;
+
+    this.board[this.cursorY][this.cursorX].hovered =
+      !this.board[this.cursorY][this.cursorX].hovered;
+  }
+
+  openActions(): void {
+    this.actionMenuMode = true;
+
+    const actionsDialog = this.dialog.open(ActionsDialogComponent, {
+      width: '200px',
+      position: { right: '25px', top: '25px' },
+      disableClose: true,
+      data: {
+        atks: this.unitTracker[this.currentInitiative].unit.attacks,
+        canAtk: this.canAct > 0,
+        canMove: this.movementLeft > 0,
+      },
+    });
+
+    this.subscriptor.add(
+      actionsDialog
+        .afterClosed()
+        .pipe(
+          tap((res: string | { atk: string }) => {
+            if (typeof res === 'string') {
+              if (res === 'skip') {
+                this.markMovement(false);
+                this.nextTurn();
+              } else if (res === 'move') {
+                this.movementMode = true;
+              }
+            } else {
+              console.log(res.atk);
+            }
+          }),
+          finalize(() => (this.actionMenuMode = false))
+        )
+        .subscribe()
+    );
+  }
+
+  // mark available tiles to move to
+  // changing set changes marking function to remove marks
+  markMovement(set = true): void {
+    for (
+      let indexX = this.movementLeft * -1 + this.cursorX;
+      indexX < this.movementLeft;
+      indexX++
+    ) {
+      if (indexX >= 0 && indexX < this.boardWidth) {
+        for (
+          let indexY = this.movementLeft * -1 + this.cursorY;
+          indexY < this.movementLeft;
+          indexY++
+        ) {
+          if (
+            indexY >= 0 &&
+            indexY < this.boardHeight &&
+            !this.board[indexY][indexX].occupant
+          ) {
+            this.board[indexY][indexX].canMoveTo = set;
+          }
+        }
+      }
+    }
   }
 }
 

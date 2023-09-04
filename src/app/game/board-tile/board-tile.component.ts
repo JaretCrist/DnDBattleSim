@@ -7,6 +7,7 @@ export class BoardTile {
   terrain: 'normal' | 'difficult' | 'water' | 'impassable' | 'flyOnly';
   hovered: boolean;
   currentInitiative: boolean;
+  canMoveTo: boolean;
   // activation(): string | null;
 
   constructor() {
@@ -15,6 +16,7 @@ export class BoardTile {
     this.terrain = 'normal';
     this.hovered = false;
     this.currentInitiative = false;
+    this.canMoveTo = false;
     // this.activation = (() => { return null;})
   }
 }
