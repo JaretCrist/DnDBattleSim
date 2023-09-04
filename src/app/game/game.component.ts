@@ -65,6 +65,9 @@ export class GameComponent implements OnInit, OnDestroy {
   currentInitiative = -1;
   canAct = 0;
   movementLeft = 0;
+  // needed for unmarking movable tiles if cursor has moved
+  currentInitX = 0;
+  currentInitY = 0;
 
   // cursor modes
   movementMode = false;
@@ -298,14 +301,18 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   toggleActiveCharacter(): void {
+    this.board[this.cursorY][this.cursorX].hovered = false;
+
     this.cursorX = this.unitTracker[this.currentInitiative].x;
     this.cursorY = this.unitTracker[this.currentInitiative].y;
+    this.currentInitX = this.cursorX;
+    this.currentInitY = this.cursorY;
 
     this.board[this.cursorY][this.cursorX].currentInitiative =
       !this.board[this.cursorY][this.cursorX].currentInitiative;
 
-    this.board[this.cursorY][this.cursorX].hovered =
-      !this.board[this.cursorY][this.cursorX].hovered;
+    this.board[this.cursorY][this.cursorX].hovered = true;
+    this.hoveredTile = this.board[this.cursorY][this.cursorX];
   }
 
   openActions(): void {
@@ -348,14 +355,14 @@ export class GameComponent implements OnInit, OnDestroy {
   // changing set changes marking function to remove marks
   markMovement(set = true): void {
     for (
-      let indexX = this.movementLeft * -1 + this.cursorX;
-      indexX < this.movementLeft;
+      let indexX = this.movementLeft * -1 + this.currentInitX;
+      indexX <= this.movementLeft + this.currentInitX;
       indexX++
     ) {
       if (indexX >= 0 && indexX < this.boardWidth) {
         for (
-          let indexY = this.movementLeft * -1 + this.cursorY;
-          indexY < this.movementLeft;
+          let indexY = this.movementLeft * -1 + this.currentInitY;
+          indexY <= this.movementLeft + this.currentInitY;
           indexY++
         ) {
           if (
