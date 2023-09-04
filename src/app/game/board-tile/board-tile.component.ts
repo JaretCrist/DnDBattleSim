@@ -9,6 +9,7 @@ export class BoardTile {
   currentInitiative: boolean;
   canMoveTo: boolean;
   movementMode: boolean;
+  actionMode: boolean;
   // activation(): string | null;
 
   constructor() {
@@ -19,6 +20,7 @@ export class BoardTile {
     this.currentInitiative = false;
     this.canMoveTo = false;
     this.movementMode = false;
+    this.actionMode = false;
     // this.activation = (() => { return null;})
   }
 }

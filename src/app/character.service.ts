@@ -29,6 +29,7 @@ export interface Attack {
   rollDie: number;
   modifier: number;
   type: string;
+  range: number;
 }
 
 @Injectable({
@@ -52,6 +53,7 @@ export class CharacterService {
         rollCount: 1,
         modifier: 1,
         type: 'slash',
+        range: 1,
       },
     ],
     attackCount: 1,
@@ -74,6 +76,7 @@ export class CharacterService {
         rollDie: 6,
         modifier: 2,
         type: 'pierce',
+        range: 1,
       },
     ],
     attackCount: 1,

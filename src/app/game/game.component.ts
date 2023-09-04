@@ -59,9 +59,12 @@ export class GameComponent implements OnInit, OnDestroy {
   currentInitX = 0;
   currentInitY = 0;
 
+  selectedAction = '';
+
   // cursor modes
   movementMode = false;
   actionMenuMode = false;
+  actionMode = false;
 
   // rolling a nat 20 has decreased odds due to the calculation being floored
   // to fix: range 1-21 and reroll 21s
@@ -99,13 +102,21 @@ export class GameComponent implements OnInit, OnDestroy {
         break;
 
       case 'Enter':
-        if (!this.actionMenuMode && !this.movementMode) this.openActions();
+        if (!this.actionMenuMode && !this.movementMode && !this.actionMode)
+          this.openActions();
         else if (!this.actionMenuMode && this.movementMode) this.moveUnit();
+        else if (this.actionMode) this.action();
         break;
 
-      // backspace
       case 'Backspace':
-        if (this.movementMode) this.movementMode = false;
+        if (this.movementMode) {
+          this.movementMode = false;
+          this.board[this.cursorY][this.cursorX].movementMode = false;
+        }
+        if (this.actionMode) {
+          this.actionMode = false;
+          this.board[this.cursorY][this.cursorX].actionMode = false;
+        }
         break;
 
       default:
@@ -243,6 +254,7 @@ export class GameComponent implements OnInit, OnDestroy {
     if (!this.actionMenuMode) {
       this.board[this.cursorY][this.cursorX].hovered = false;
       this.board[this.cursorY][this.cursorX].movementMode = false;
+      this.board[this.cursorY][this.cursorX].actionMode = false;
 
       if (direction === 'up') {
         this.cursorY--;
@@ -260,6 +272,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
       this.board[this.cursorY][this.cursorX].hovered = true;
       this.board[this.cursorY][this.cursorX].movementMode = this.movementMode;
+      this.board[this.cursorY][this.cursorX].actionMode = this.actionMode;
       this.hoveredTile = this.board[this.cursorY][this.cursorX];
     }
   }
@@ -314,14 +327,14 @@ export class GameComponent implements OnInit, OnDestroy {
 
   toggleActiveCharacter(): void {
     this.board[this.cursorY][this.cursorX].hovered = false;
+    this.board[this.currentInitY][this.currentInitX].currentInitiative = false;
 
     this.cursorX = this.unitTracker[this.currentInitiative].x;
     this.cursorY = this.unitTracker[this.currentInitiative].y;
     this.currentInitX = this.cursorX;
     this.currentInitY = this.cursorY;
 
-    this.board[this.cursorY][this.cursorX].currentInitiative =
-      !this.board[this.cursorY][this.cursorX].currentInitiative;
+    this.board[this.cursorY][this.cursorX].currentInitiative = true;
 
     this.board[this.cursorY][this.cursorX].hovered = true;
     this.hoveredTile = this.board[this.cursorY][this.cursorX];
@@ -356,7 +369,9 @@ export class GameComponent implements OnInit, OnDestroy {
                   this.movementMode;
               }
             } else {
-              console.log(res.atk);
+              this.selectedAction = res.atk;
+              this.actionMode = true;
+              this.board[this.cursorY][this.cursorX].actionMode = true;
             }
           }),
           finalize(() => (this.actionMenuMode = false))
@@ -404,6 +419,9 @@ export class GameComponent implements OnInit, OnDestroy {
       // swap current unit to location of cursor
       this.board[this.cursorY][this.cursorX] =
         this.board[this.currentInitY][this.currentInitX];
+      this.unitTracker[this.currentInitiative].x = this.cursorX;
+      this.unitTracker[this.currentInitiative].y = this.cursorY;
+
       // replace following line with this.terrainOnly[Y][X]
       this.board[this.currentInitY][this.currentInitX] = new BoardTile();
 
@@ -421,6 +439,85 @@ export class GameComponent implements OnInit, OnDestroy {
 
     this.movementMode = false;
     this.board[this.cursorY][this.cursorX].movementMode = this.movementMode;
+  }
+
+  action(): void {
+    let nextTurn = false;
+    // verify selected tile occupant
+    // This does allow team-killing
+    if (this.board[this.cursorY][this.cursorX].occupant) {
+      // pull correct action from unit (by name)
+      const attackerName = `${
+        this.unitTracker[this.currentInitiative].unit.name
+      } (${this.unitTracker[this.currentInitiative].team})`;
+      const attack = this.unitTracker[this.currentInitiative].unit.attacks.find(
+        (attack) => attack.name === this.selectedAction
+      );
+      let attacked = this.board[this.cursorY][this.cursorX].occupant;
+
+      // check hit range
+      const distance = Math.max(
+        Math.abs(this.cursorY - this.currentInitY),
+        Math.abs(this.cursorX - this.currentInitX)
+      );
+      const canHit = attack ? attack.range >= distance && distance > 0 : false;
+
+      if (attack && attacked && canHit) {
+        // ROLL DICE
+        const accuracy = this.rollDie(20) + attack.hit;
+        this.gameLog.push(`${attackerName} rolls: ${accuracy}`);
+        if (accuracy >= attacked.stats.ac) {
+          let dmg = 0;
+          for (let index = 0; index < attack.rollCount; index++) {
+            let nextHit = this.rollDie(attack.rollDie) + attack.modifier;
+            if (nextHit === 20 + attack.modifier) {
+              nextHit *= 2;
+              this.gameLog.push('Critical Hit!');
+            }
+            dmg += nextHit;
+          }
+          this.gameLog.push(`Hit: ${dmg} dmg (${attack.type})`);
+
+          attacked.stats.hp -= dmg;
+          if (attacked.stats.hp <= 0) {
+            if (this.board[this.cursorY][this.cursorX].team === 'red') {
+              this.redCount--;
+              this.gameLog.push(`${attacked.name} died`);
+            } else if (this.board[this.cursorY][this.cursorX].team === 'blue') {
+              this.blueCount--;
+              this.gameLog.push(`${attacked.name} died`);
+            } else {
+              this.gameLog.push(
+                `How did you kill something that doesn't exists`
+              );
+            }
+
+            attacked = null;
+            this.board[this.cursorY][this.cursorX].team = null;
+          }
+          this.board[this.cursorY][this.cursorX].occupant = attacked;
+        } else {
+          this.gameLog.push('Miss!');
+        }
+
+        // check for nextTurn conditions
+        this.actionsLeft--;
+        if (
+          (this.movementLeft <= 0 && this.actionsLeft <= 0) ||
+          this.redCount === 0 ||
+          this.blueCount === 0
+        ) {
+          nextTurn = true;
+        }
+      }
+    }
+
+    // change cursor mode
+    this.actionMode = false;
+    this.board[this.cursorY][this.cursorX].actionMode = false;
+    if (nextTurn) {
+      this.nextTurn();
+    }
   }
 }
 
