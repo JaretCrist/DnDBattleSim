@@ -160,10 +160,14 @@ export class GameComponent implements OnInit, OnDestroy {
             this.redUnit =
               res.redCreature === 'Bandit'
                 ? this.charService.Bandit
+                : res.redCreature === 'GlassCannon'
+                ? this.charService.GlassCannon
                 : this.charService.Skeleton;
             this.blueUnit =
               res.blueCreature === 'Bandit'
                 ? this.charService.Bandit
+                : res.blueCreature === 'GlassCannon'
+                ? this.charService.GlassCannon
                 : this.charService.Skeleton;
 
             this.generateBoard(this.boardWidth, this.boardHeight);
@@ -210,7 +214,7 @@ export class GameComponent implements OnInit, OnDestroy {
         this.board[yCoord][index].team = 'red';
 
         const redWithLocation: Unit = {
-          unit: this.redUnit,
+          unit: new Character(this.redUnit),
           x: index,
           y: yCoord,
           initiative: this.rollDie(20) + this.redUnit.stats.initiative,
@@ -238,7 +242,7 @@ export class GameComponent implements OnInit, OnDestroy {
         this.board[yCoord][index].team = 'blue';
 
         const blueWithLocation: Unit = {
-          unit: this.blueUnit,
+          unit: new Character(this.blueUnit),
           x: index,
           y: yCoord,
           initiative: this.rollDie(20) + this.blueUnit.stats.initiative,

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-export interface Character {
+export class Character {
   name: string;
   stats: {
     hp: number;
@@ -11,7 +11,21 @@ export interface Character {
   };
   attacks: Attack[];
   attackCount: number;
-  // activation(): string;
+
+  constructor(copiedChar?: Character) {
+    this.name = copiedChar ? copiedChar.name : '';
+    this.stats = copiedChar
+      ? copiedChar.stats
+      : {
+          hp: 0,
+          maxHP: 0,
+          ac: 0,
+          spd: 0,
+          initiative: 0,
+        };
+    this.attacks = copiedChar ? copiedChar.attacks : [];
+    this.attackCount = copiedChar ? copiedChar.attackCount : 0;
+  }
 }
 
 export interface Unit {
@@ -89,5 +103,28 @@ export class CharacterService {
       },
     ],
     attackCount: 1,
+  };
+
+  GlassCannon: Character = {
+    name: 'Glass Cannon',
+    stats: {
+      hp: 1,
+      maxHP: 1,
+      ac: 1,
+      spd: 50,
+      initiative: 5,
+    },
+    attacks: [
+      {
+        name: 'Rapier',
+        hit: 7,
+        rollCount: 1,
+        rollDie: 8,
+        modifier: 7,
+        type: 'pierce',
+        range: 1,
+      },
+    ],
+    attackCount: 3,
   };
 }
