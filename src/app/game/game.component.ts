@@ -102,10 +102,7 @@ export class GameComponent implements OnInit, OnDestroy {
         break;
 
       case 'Enter':
-        if (!this.actionMenuMode && !this.movementMode && !this.actionMode)
-          this.openActions();
-        else if (!this.actionMenuMode && this.movementMode) this.moveUnit();
-        else if (this.actionMode) this.action();
+        this.enterFunction();
         break;
 
       case 'Backspace':
@@ -122,6 +119,19 @@ export class GameComponent implements OnInit, OnDestroy {
       default:
         break;
     }
+  }
+
+  handleClick(position: { x: number; y: number }): void {
+    // set cursor to clicked location
+    this.moveCursor('click', position);
+    this.enterFunction();
+  }
+
+  enterFunction(): void {
+    if (!this.actionMenuMode && !this.movementMode && !this.actionMode)
+      this.openActions();
+    else if (!this.actionMenuMode && this.movementMode) this.moveUnit();
+    else if (this.actionMode) this.action();
   }
 
   ngOnDestroy(): void {
@@ -180,7 +190,7 @@ export class GameComponent implements OnInit, OnDestroy {
     for (let i = 0; i < height; i++) {
       const col: BoardTile[] = [];
       for (let j = 0; j < width; j++) {
-        const temp: BoardTile = new BoardTile();
+        const temp: BoardTile = new BoardTile(j, i);
         col.push(temp);
       }
       this.board.push(col);
@@ -250,7 +260,10 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   // cursor movements
-  moveCursor(direction: 'up' | 'down' | 'left' | 'right'): void {
+  moveCursor(
+    direction: 'up' | 'down' | 'left' | 'right' | 'click',
+    position?: { x: number; y: number }
+  ): void {
     if (!this.actionMenuMode) {
       this.board[this.cursorY][this.cursorX].hovered = false;
       this.board[this.cursorY][this.cursorX].movementMode = false;
@@ -265,9 +278,12 @@ export class GameComponent implements OnInit, OnDestroy {
       } else if (direction === 'left') {
         this.cursorX--;
         if (this.cursorX < 0) this.cursorX = this.boardWidth - 1;
-      } else {
+      } else if (direction === 'right') {
         this.cursorX++;
         if (this.cursorX > this.boardWidth - 1) this.cursorX = 0;
+      } else if (position) {
+        this.cursorX = position.x;
+        this.cursorY = position.y;
       }
 
       this.board[this.cursorY][this.cursorX].hovered = true;
@@ -285,7 +301,6 @@ export class GameComponent implements OnInit, OnDestroy {
         `${unit.unit.name} (${unit.team}) - ${unit.initiative}`
       );
     }
-    this.gameLog.push('--------------------------');
   }
 
   // Check game over conditions, move to next initiative, reset variables
@@ -302,6 +317,7 @@ export class GameComponent implements OnInit, OnDestroy {
       this.toggleActiveCharacter();
     }
 
+    this.gameLog.push('--------------------------');
     this.currentInitiative++;
     let nextInitiativeFound = false;
     while (!nextInitiativeFound) {
@@ -419,11 +435,18 @@ export class GameComponent implements OnInit, OnDestroy {
       // swap current unit to location of cursor
       this.board[this.cursorY][this.cursorX] =
         this.board[this.currentInitY][this.currentInitX];
+      // for the purpose of click controls, we can't swap the tiles' positions
+      this.board[this.cursorY][this.cursorX].xPos = this.cursorX;
+      this.board[this.cursorY][this.cursorX].yPos = this.cursorY;
+
       this.unitTracker[this.currentInitiative].x = this.cursorX;
       this.unitTracker[this.currentInitiative].y = this.cursorY;
 
       // replace following line with this.terrainOnly[Y][X]
-      this.board[this.currentInitY][this.currentInitX] = new BoardTile();
+      this.board[this.currentInitY][this.currentInitX] = new BoardTile(
+        this.currentInitX,
+        this.currentInitY
+      );
 
       this.currentInitX = this.cursorX;
       this.currentInitY = this.cursorY;

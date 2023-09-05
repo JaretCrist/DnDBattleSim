@@ -7,7 +7,10 @@
       <div class="col h80 horzScroll">
         <div *ngFor="let row of this.board" class="d-flex flex-row mx-3">
           <div *ngFor="let tile of row">
-            <app-board-tile [passedTile]="tile"></app-board-tile>
+            <app-board-tile
+              [passedTile]="tile"
+              (position)="handleClick($event)"
+            ></app-board-tile>
           </div>
         </div>
       </div>

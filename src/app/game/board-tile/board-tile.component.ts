@@ -1,4 +1,10 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+} from '@angular/core';
 import { Character } from 'src/app/character.service';
 
 export class BoardTile {
@@ -10,9 +16,10 @@ export class BoardTile {
   canMoveTo: boolean;
   movementMode: boolean;
   actionMode: boolean;
-  // activation(): string | null;
+  xPos: number;
+  yPos: number;
 
-  constructor() {
+  constructor(xPos: number, yPos: number) {
     this.occupant = null;
     this.team = null;
     this.terrain = 'normal';
@@ -21,19 +28,10 @@ export class BoardTile {
     this.canMoveTo = false;
     this.movementMode = false;
     this.actionMode = false;
-    // this.activation = (() => { return null;})
+    this.xPos = xPos;
+    this.yPos = yPos;
   }
 }
-
-// export const defaultBoardTile: BoardTile = {
-//   occupant: null,
-//   team: null,
-//   terrain: 'normal',
-//   hovered: false,
-//   // activation() {
-//   //   return null;
-//   // },
-// };
 
 @Component({
   selector: 'app-board-tile',
@@ -45,7 +43,8 @@ export class BoardTileComponent implements OnChanges {
     return 'test';
   }
 
-  @Input() passedTile: BoardTile = new BoardTile();
+  @Input() passedTile: BoardTile = new BoardTile(0, 0);
+  @Output() position = new EventEmitter<{ x: number; y: number }>();
 
   displayTile: BoardTile;
 
@@ -59,5 +58,12 @@ export class BoardTileComponent implements OnChanges {
 
   changeTile(newTile: BoardTile): void {
     this.displayTile = newTile;
+  }
+
+  emitPosition() {
+    this.position.emit({
+      x: this.displayTile.xPos,
+      y: this.displayTile.yPos,
+    });
   }
 }

@@ -7,6 +7,7 @@
     'movementMode_' + this.displayTile.movementMode,
     'actionMode_' + this.displayTile.actionMode
   ]"
+  (click)="this.emitPosition()"
 >
   <div
     *ngIf="this.displayTile.team"
