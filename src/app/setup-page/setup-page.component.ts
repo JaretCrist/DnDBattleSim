@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-// import { setUpStats } from '../game/game.component';
 import { FormBuilder, Validators } from '@angular/forms';
 
 @Component({

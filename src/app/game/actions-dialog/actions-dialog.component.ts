@@ -36,8 +36,4 @@ export class ActionsDialogComponent {
   cancel(): void {
     this.dialogRef.close('cancel');
   }
-
-  // keyboard input
-
-  // button focuses
 }

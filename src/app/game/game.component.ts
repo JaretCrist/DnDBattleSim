@@ -11,7 +11,7 @@ import { ActionsDialogComponent } from './actions-dialog/actions-dialog.componen
 export interface setUpStats {
   boardWidth: number;
   boardHeight: number;
-  // boardType: enum
+  // boardType: enum; // This is for the stretch goal of prebuilt terrain maps
 
   redCount: number;
   blueCount: number;
@@ -202,6 +202,7 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   // eventually get more complicated
+  // Currently: red starts top left corner, blue starts bottom right
   placeUnits(): void {
     let redPlaced = 0;
     let yCoord = 0;
