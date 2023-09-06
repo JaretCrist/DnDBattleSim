@@ -49,8 +49,8 @@ export class GameComponent implements OnInit, OnDestroy {
   gameLog: string[] = [];
 
   unitTracker: Unit[] = [];
-  redUnit: Character = this.charService.Bandit;
-  blueUnit: Character = this.charService.Skeleton;
+  redUnit: Character = this.charService.characterList[0];
+  blueUnit: Character = this.charService.characterList[1];
 
   currentInitiative = -1;
   actionsLeft = 0;
@@ -157,18 +157,15 @@ export class GameComponent implements OnInit, OnDestroy {
             this.blueCount = res.blueCount;
 
             // replace with function when more options are added
-            this.redUnit =
-              res.redCreature === 'Bandit'
-                ? this.charService.Bandit
-                : res.redCreature === 'GlassCannon'
-                ? this.charService.GlassCannon
-                : this.charService.Skeleton;
-            this.blueUnit =
-              res.blueCreature === 'Bandit'
-                ? this.charService.Bandit
-                : res.blueCreature === 'GlassCannon'
-                ? this.charService.GlassCannon
-                : this.charService.Skeleton;
+            const tempRedUnit = this.charService.characterList.find(
+              (character) => character.name === res.redCreature
+            );
+            if (tempRedUnit) this.redUnit = tempRedUnit;
+
+            const tempBlueUnit = this.charService.characterList.find(
+              (character) => character.name === res.blueCreature
+            );
+            if (tempBlueUnit) this.blueUnit = tempBlueUnit;
 
             this.generateBoard(this.boardWidth, this.boardHeight);
             this.placeUnits();
@@ -210,14 +207,15 @@ export class GameComponent implements OnInit, OnDestroy {
     let yCoord = 0;
     while (redPlaced < this.redCount) {
       for (let index = yCoord; index < this.boardWidth; index++) {
-        this.board[yCoord][index].occupant = this.redUnit;
+        const newRed = new Character(this.redUnit);
+        this.board[yCoord][index].occupant = newRed;
         this.board[yCoord][index].team = 'red';
 
         const redWithLocation: Unit = {
-          unit: new Character(this.redUnit),
+          unit: newRed,
           x: index,
           y: yCoord,
-          initiative: this.rollDie(20) + this.redUnit.stats.initiative,
+          initiative: this.rollDie(20) + newRed.stats.initiative,
           team: 'red',
         };
         this.unitTracker.push(redWithLocation);
@@ -238,14 +236,15 @@ export class GameComponent implements OnInit, OnDestroy {
     yCoord = this.boardHeight - 1;
     while (bluePlaced < this.blueCount) {
       for (let index = this.boardWidth - 1; index >= 0; index--) {
-        this.board[yCoord][index].occupant = this.blueUnit;
+        const newBlue = new Character(this.blueUnit);
+        this.board[yCoord][index].occupant = newBlue;
         this.board[yCoord][index].team = 'blue';
 
         const blueWithLocation: Unit = {
-          unit: new Character(this.blueUnit),
+          unit: newBlue,
           x: index,
           y: yCoord,
-          initiative: this.rollDie(20) + this.blueUnit.stats.initiative,
+          initiative: this.rollDie(20) + newBlue.stats.initiative,
           team: 'blue',
         };
         this.unitTracker.push(blueWithLocation);
