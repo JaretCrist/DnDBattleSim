@@ -1,17 +1,13 @@
-<!-- <div class="tileBG">
-  <div>A</div>
-</div> -->
-<!-- <div 
-  [className]="'tileBG ' + this.displayTile.terrain + ' hovered_' + this.displayTile.hovered ">
-  <div *ngIf="this.displayTile.team" 
-    [className]="'charToken ' + this.displayTile.team"></div>
-</div> -->
 <div
   [ngClass]="[
     'tileBG',
     this.displayTile.terrain,
-    'hovered_' + this.displayTile.hovered
+    'hovered_' + this.displayTile.hovered,
+    'canMove-' + this.displayTile.canMoveTo,
+    'movementMode_' + this.displayTile.movementMode,
+    'actionMode_' + this.displayTile.actionMode
   ]"
+  (click)="this.emitPosition()"
 >
   <div
     *ngIf="this.displayTile.team"

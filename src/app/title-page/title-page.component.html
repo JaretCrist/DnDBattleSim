@@ -4,19 +4,30 @@
     Battle Simulator
   </h1>
 
-  <h3>Welcome to the DnD 5th Edition Battle Simulator!</h3>
-  <div class="ms-3 left">
-    <h5 class="ms-3">Controls:</h5>
-    <ul>
-      <li>W or Up : Move Cursor Up</li>
-      <li>A or Left : Move Cursor Left</li>
-      <li>S or Down : Move Cursor Down</li>
-      <li>D or Right : Move Cursor Right</li>
-      <li>E, V, O, or Enter : Confirm / Select</li>
-      <li>R, C, P, Backspace : Cancel</li>
-      <li>Mouse controls coming in later update!</li>
-    </ul>
+  <h3 class="mb-5">Welcome to the DnD 5th Edition Battle Simulator!</h3>
+  <div class="row">
+    <div class="col ms-3 left">
+      <h5 class="ms-3">Controls:</h5>
+      <ul>
+        <li>Cursor Controls: WASD or Arrow Keys</li>
+        <li>Confirm / Select: Enter</li>
+        <li>Cancel: Backspace</li>
+        <li>Menu Navigation: Tab or Click</li>
+        <li>Full mouse controls: Now Available!</li>
+      </ul>
+    </div>
+
+    <div class="col left">
+      <h5 class="ms-3">Color Meanings:</h5>
+      <ul>
+        <li>Black outline around token: current character</li>
+        <li>Purple square: space within movement reach</li>
+        <li>Orange box outline: default cursor</li>
+        <li>Green box outline: movement cursor</li>
+        <li>Yellow box outline: attack cursor</li>
+      </ul>
+    </div>
   </div>
 
-  <button (click)="this.beginGame()">Begin Your Quest</button>
+  <button class="mb-3" (click)="this.beginGame()">Begin Your Quest</button>
 </div>

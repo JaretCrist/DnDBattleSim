@@ -12,8 +12,8 @@
   margin: 20px;
 }
 
-.minW200 {
-  min-width: 200px;
+.minW210 {
+  min-width: 210px;
 }
 
 .h80 {
@@ -26,6 +26,11 @@
 
 .horzScroll {
   overflow: scroll;
+}
+
+.vertScrollOnly {
+  overflow-x: hidden;
+  overflow-y: scroll;
 }
 
 .noScroll {

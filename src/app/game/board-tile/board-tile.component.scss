@@ -5,12 +5,20 @@
 }
 
 .hovered_true {
-  border-color: blue;
+  border-color:rgb(253, 90, 31);
   border-width: 5px;
 }
 
+.movementMode_true {
+  border-color:lime;
+}
+
+.actionMode_true {
+  border-color:chartreuse;
+}
+
 .normal {
-  background-color: #ddd;
+  background-color: #bbb;
 }
 
 .difficult {
@@ -46,4 +54,8 @@
 
 .current-true {
 border: 5px black solid;
+}
+
+.canMove-true {
+  background-color:darkorchid;
 }

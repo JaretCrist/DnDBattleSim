@@ -7,11 +7,14 @@
       <div class="col h80 horzScroll">
         <div *ngFor="let row of this.board" class="d-flex flex-row mx-3">
           <div *ngFor="let tile of row">
-            <app-board-tile [passedTile]="tile"></app-board-tile>
+            <app-board-tile
+              [passedTile]="tile"
+              (position)="handleClick($event)"
+            ></app-board-tile>
           </div>
         </div>
       </div>
-      <div class="col-2 display gameLog minW200">
+      <div class="col-2 display gameLog minW210 vertScrollOnly">
         <!-- Game Log -->
         <div class="underline text-center">Game Log</div>
         <div *ngFor="let text of this.gameLog">
@@ -20,13 +23,6 @@
       </div>
     </div>
   </div>
-
-  <!-- 
-  <div *ngIf="this.debug" class="my-3">
-    <button (click)="this.redWin()" class="mx-3">Red Wins</button>
-    <button (click)="this.blueWin()">Blue Wins</button>
-    <button (click)="this.testBoards()">Test board changes</button>
-  </div> -->
 
   <!-- Hovered Display -->
   <div

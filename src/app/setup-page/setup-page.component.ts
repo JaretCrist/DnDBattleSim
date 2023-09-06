@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-// import { setUpStats } from '../game/game.component';
 import { FormBuilder, Validators } from '@angular/forms';
 
 @Component({
@@ -24,7 +23,6 @@ export class SetupPageComponent {
   });
 
   startGame(): void {
-    console.log(this.gameStats.value);
     if (this.gameStats.valid) this.dialogRef.close(this.gameStats.value);
   }
 }
